@@ -917,7 +917,7 @@
                         ></div>
                     </div>
 
-                    <div className="flex-1 p-8 md:p-12 flex items-center justify-center text-center cursor-text">
+                    <div className="flex-1 p-8 md:p-12 flex items-center justify-center text-center cursor-text relative z-10">
                         {showCourseComplete ? (
                         <div className="text-center animate-in fade-in zoom-in duration-300 max-w-md mx-auto">
                             <div className="inline-block p-5 rounded-full bg-blue-100 mb-6">
@@ -933,7 +933,7 @@
                             </p>
                             <button 
                             onClick={requestReset}
-                            className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold shadow-lg shadow-blue-200 transition"
+                            className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold shadow-lg shadow-blue-200 transition cursor-pointer relative z-20"
                             >
                             {lang === 'km' ? "ចាប់ផ្តើមពីដើមវិញ" : "Start Over"}
                             </button>
@@ -969,7 +969,7 @@
 
                             <button 
                             onClick={handleNext}
-                            className={`w-full py-4 text-white rounded-xl font-bold shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2
+                            className={`w-full py-4 text-white rounded-xl font-bold shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer relative z-20
                                 ${isLevelComplete ? 'bg-green-600 hover:bg-green-700 shadow-green-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'}`}
                             >
                             {isLevelComplete 
@@ -990,7 +990,7 @@
                         value={userInput}
                         onChange={handleChange}
                         onKeyDown={handleKeyDown}
-                        className="absolute opacity-0 top-0 left-0 w-full h-full cursor-default resize-none"
+                        className={`absolute opacity-0 top-0 left-0 w-full h-full cursor-default resize-none ${isFinished ? 'hidden' : 'block'}`}
                         autoFocus
                         autoComplete="off"
                         autoCorrect="off"
