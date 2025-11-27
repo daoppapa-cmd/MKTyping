@@ -105,7 +105,6 @@
         const StarIcon = (props) => <Icon {...props} path={<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />} />;
 
         // --- COURSE DATA GENERATOR ---
-        // Helper to create array of N items
         const generateLessons = (baseTexts, count) => {
             const result = [];
             for (let i = 0; i < count; i++) {
@@ -114,69 +113,157 @@
             return result;
         };
 
-        // --- CONTENT DATA ---
-        const EN_SHORT = ["asdf", "jkl;", "qwer", "uiop", "zxcv", "nm,.", "tygh", "bnmv", "asdf jkl;", "the quick"];
+        // --- CONTENT DATA (Longer Texts) ---
+        // English Long Texts (Level 5-9) - ~3 lines
         const EN_LONG = [
-            "The quick brown fox jumps over the lazy dog.",
-            "Practice makes perfect in every skill you learn.",
-            "React is a popular JavaScript library for building user interfaces.",
-            "Consistency is key to mastering touch typing.",
-            "Technology is changing the world at a rapid pace.",
-            "Coding is the new literacy in the digital age.",
-            "Learning to type fast saves you hundreds of hours.",
-            "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-            "Believe you can and you're halfway there.",
-            "Do what you can, with what you have, where you are.",
-            "The only way to do great work is to love what you do.",
-            "In the middle of every difficulty lies opportunity.",
-            "Happiness is not something ready made. It comes from your own actions.",
-            "It always seems impossible until it is done.",
-            "Dream big and dare to fail."
+            "Touch typing is a style of typing without looking at the keys. A touch typist will know their location on the keyboard through muscle memory. This method significantly increases typing speed and accuracy, allowing you to focus on the content rather than the process of typing itself. It is a valuable skill in the digital age.",
+            "React is a free and open-source front-end JavaScript library for building user interfaces based on components. It is maintained by Meta and a community of individual developers and companies. React can be used to develop single-page, mobile, or server-rendered applications with frameworks like Next.js. It is one of the most popular libraries today.",
+            "Climate change describes a change in the average conditions — such as temperature and rainfall — in a region over a long period of time. NASA scientists have observed Earth’s surface is warming, and many of the warmest years on record have happened in the past 20 years. Reducing our carbon footprint is essential for the future of our planet.",
+            "Artificial intelligence (AI) is intelligence demonstrated by machines, as opposed to the natural intelligence displayed by humans or animals. Leading AI textbooks define the field as the study of 'intelligent agents': any system that perceives its environment and takes actions that maximize its chance of achieving its goals.",
+            "The history of computers dates back to the invention of the abacus, but modern computing began with the development of the transistor. From room-sized mainframes to smartphones in our pockets, technology has evolved at an exponential rate. Understanding how these devices work is becoming increasingly important in our daily lives.",
+            "Reading is a complex cognitive process of decoding symbols in order to construct or derive meaning. Reading is a means of language acquisition, communication, and sharing information and ideas. Like all language, it is a complex interaction between the text and the reader which is shaped by the reader’s prior knowledge.",
+            "Success is not final, failure is not fatal: it is the courage to continue that counts. Many of life's failures are people who did not realize how close they were to success when they gave up. The only way to do great work is to love what you do. If you haven't found it yet, keep looking. Don't settle.",
+            "Consistency is the key to success. It is not about being perfect every day, but about showing up and doing the work. Small habits practiced daily compound over time to create massive results. Whether it is learning a new language, an instrument, or typing, regular practice is more effective than sporadic intense sessions.",
+            "The internet has revolutionized the way we communicate, access information, and conduct business. It has connected people from all corners of the globe, making the world a smaller place. However, it also brings challenges such as data privacy and misinformation. Navigating the digital world requires critical thinking.",
+            "Biodiversity refers to the variety of life on Earth at all its levels, from genes to ecosystems, and can encompass the evolutionary, ecological, and cultural processes that sustain life. Biodiversity is important to most aspects of our lives. We value biodiversity for many reasons, some utilitarian, some intrinsic.",
+            "Music is an art form, and cultural activity, whose medium is sound. General definitions of music include common elements such as pitch, rhythm, dynamics, and the sonic qualities of timbre and texture. Different styles or types of music may emphasize, de-emphasize or omit some of these elements.",
+            "Time management is the process of planning and exercising conscious control of time spent on specific activities, especially to increase effectiveness, efficiency, and productivity. It involves a juggling act of various demands upon a person relating to work, social life, family, hobbies, personal interests and commitments.",
+            "Healthy eating involves consuming a balanced diet that provides the body with essential nutrients. This includes fruits, vegetables, whole grains, and lean proteins. Staying hydrated and limiting processed foods are also key components. A healthy diet supports the immune system and reduces the risk of chronic diseases.",
+            "Leadership is the ability of an individual or a group of individuals to influence and guide followers or other members of an organization. It involves making sound and difficult decisions, creating and articulating a clear vision, establishing achievable goals and providing followers with the knowledge and tools necessary to achieve those goals.",
+            "Creativity is a phenomenon whereby something new and somehow valuable is formed. The created item may be intangible such as an idea, a scientific theory, a musical composition, or a joke, or a physical object such as an invention, a literary work, or a painting. It is a skill that can be developed."
         ];
 
-        const KM_SHORT = ["កកក", "ខខខ", "ចចច", "ឆឆឆ", "ដដដ", "ណណណ", "តតត", "ថថថ", "កខចឆ", "ដណតថ"];
+        // Khmer Long Texts (Level 5-9) - ~3 lines
         const KM_LONG = [
-            "ខ្ញុំស្រឡាញ់ប្រទេសកម្ពុជាដែលមានប្រាសាទអង្គរវត្តជាសម្បត្តិបេតិកភណ្ឌពិភពលោក។",
-            "ការសិក្សាគឺជាគន្លឹះនៃភាពជោគជ័យក្នុងជីវិតនិងអនាគត។",
-            "សាមគ្គីភាពនាំមកនូវសន្តិភាពនិងការរីកចម្រើនដល់សង្គមជាតិ។",
-            "រាជធានីភ្នំពេញគឺជាបេះដូងនៃព្រះរាជាណាចក្រកម្ពុជា។",
-            "ព្យាយាមគង់បានសម្រេច ដូចពាក្យចាស់ពោលថា គង់មានថ្ងៃជោគជ័យ។",
-            "សុខភាពគឺជាទ្រព្យសម្បត្តិដ៏មានតម្លៃបំផុតសម្រាប់មនុស្សគ្រប់រូប។",
-            "ការគោរពចាស់ទុំគឺជាប្រពៃណីដ៏ល្អផូរផង់របស់ប្រជាជនខ្មែរ។",
-            "សូមចូលរួមការពារបរិស្ថានដើម្បីផែនដីរបស់យើងទាំងអស់គ្នា។",
-            "បច្ចេកវិទ្យាព័ត៌មានកំពុងអភិវឌ្ឍយ៉ាងខ្លាំងក្លានៅក្នុងយុគសម័យនេះ។",
-            "ការអានសៀវភៅជួយពង្រីកចំណេះដឹងនិងបង្កើនសមត្ថភាពគិត។",
-            "ទេសចរណ៍គឺជាមាសបៃតងដែលជួយទ្រទ្រង់សេដ្ឋកិច្ចជាតិ។",
-            "ញញឹមស្វាគមន៍ភ្ញៀវទេសចរណ៍ដែលមកទស្សនាប្រទេសយើង។",
-            "កីឡានាំមកនូវសុខភាព មិត្តភាព និងសាមគ្គីភាព។",
-            "ស្រឡាញ់ជាតិ ត្រូវហ៊ានលះបង់ដើម្បីបុព្វហេតុជាតិ។",
-            "ធ្វើល្អបានល្អ ធ្វើអាក្រក់បានអាក្រក់ គឺជាច្បាប់ធម្មជាតិ។"
+            "ប្រាសាទអង្គរវត្តគឺជាប្រាសាទព្រហ្មញ្ញសាសនាធំបំផុតនៅលើពិភពលោក។ ប្រាសាទនេះត្រូវបានកសាងឡើងនៅដើមសតវត្សរ៍ទី១២ ដោយព្រះបាទសូរ្យវរ្ម័នទី២ នៅយសោធរបុរៈ ដែលជារាជធានីនៃចក្រភពខ្មែរ។ វាជាប្រាសាទដែលតំណាងឱ្យកំពូលនៃរចនាប័ទ្មស្ថាបត្យកម្មខ្មែរ ហើយបានក្លាយជានិមិត្តរូបនៃប្រទេសកម្ពុជា ដោយមានរូបនៅលើទង់ជាតិរបស់ប្រទេស និងជាគោលដៅទេសចរណ៍ដ៏សំខាន់។",
+            "ការអប់រំមានសារៈសំខាន់ណាស់សម្រាប់ការអភិវឌ្ឍធនធានមនុស្សនិងសង្គមជាតិ។ វាជួយបណ្តុះបណ្តាលយុវជនឱ្យមានចំណេះដឹង ជំនាញ និងសីលធម៌ល្អក្នុងការរស់នៅ។ ការសិក្សារៀនសូត្រមិនត្រឹមតែនៅក្នុងសាលាប៉ុណ្ណោះទេ តែយើងអាចរៀនបានគ្រប់ពេលវេលានិងគ្រប់ទីកន្លែង។ ការអានសៀវភៅគឺជាវិធីសាស្ត្រដ៏ល្អមួយដើម្បីបង្កើនចំណេះដឹងរបស់យើង។",
+            "រាជធានីភ្នំពេញគឺជាបេះដូងនៃព្រះរាជាណាចក្រកម្ពុជា និងជាមជ្ឈមណ្ឌលនយោបាយ សេដ្ឋកិច្ច និងវប្បធម៌។ ទីក្រុងនេះមានប្រវត្តិសាស្ត្រយូរលង់ណាស់មកហើយ និងមានការអភិវឌ្ឍយ៉ាងឆាប់រហ័សក្នុងរយៈពេលប៉ុន្មានឆ្នាំចុងក្រោយនេះ។ អគារខ្ពស់ៗ ស្ពាន និងផ្លូវថ្នល់ត្រូវបានសាងសង់ឡើងយ៉ាងច្រើន ដើម្បីបំពេញតម្រូវការរបស់ប្រជាជនដែលចេះតែកើនឡើង។",
+            "សុខភាពគឺជាទ្រព្យសម្បត្តិដ៏មានតម្លៃបំផុតសម្រាប់មនុស្សគ្រប់រូប។ ការថែរក្សាសុខភាពឱ្យបានល្អតម្រូវឱ្យយើងបរិភោគអាហារដែលមានជីវជាតិ ហាត់ប្រាណឱ្យបានទៀងទាត់ និងសម្រាកឱ្យបានគ្រប់គ្រាន់។ ការជៀសវាងពីគ្រឿងញៀន បារី និងស្រា ក៏ជាកត្តាសំខាន់ផងដែរ។ សុខភាពល្អនាំមកនូវសុភមង្គលក្នុងគ្រួសារនិងភាពជោគជ័យក្នុងការងារ។",
+            "វិស័យទេសចរណ៍ត្រូវបានចាត់ទុកជាមាសបៃតងដែលជួយទ្រទ្រង់សេដ្ឋកិច្ចជាតិយ៉ាងសំខាន់។ ប្រទេសកម្ពុជាសម្បូរទៅដោយតំបន់ទេសចរណ៍វប្បធម៌និងធម្មជាតិដ៏ស្រស់ស្អាតជាច្រើនដូចជា ប្រាសាទបុរាណ ឆ្នេរសមុទ្រ និងតំបន់អេកូទេសចរណ៍។ ការចូលរួមថែរក្សាបរិស្ថាននិងបដិសណ្ឋារកិច្ចល្អចំពោះភ្ញៀវទេសចរ គឺជាកាតព្វកិច្ចរបស់យើងទាំងអស់គ្នា។",
+            "បច្ចេកវិទ្យាព័ត៌មានកំពុងដើរតួនាទីយ៉ាងសំខាន់ក្នុងការរស់នៅប្រចាំថ្ងៃរបស់យើង។ វាមិនត្រឹមតែជួយសម្រួលដល់ការទំនាក់ទំនងប៉ុណ្ណោះទេ ថែមទាំងជួយក្នុងការសិក្សា ការងារ និងការកម្សាន្តផងដែរ។ ការប្រើប្រាស់បច្ចេកវិទ្យាដោយមានការទទួលខុសត្រូវនឹងនាំមកនូវប្រយោជន៍ជាច្រើនដល់ខ្លួនយើងនិងសង្គមជាតិ។ យើងគួររៀនសូត្របច្ចេកវិទ្យាថ្មីៗជានិច្ច។",
+            "វប្បធម៌ខ្មែរមានលក្ខណៈសម្បូរបែបនិងចំណាស់។ សិល្បៈ តន្ត្រី របាំ និងទំនៀមទម្លាប់ប្រពៃណីខ្មែរត្រូវបានគេទទួលស្គាល់និងកោតសរសើរនៅលើឆាកអន្តរជាតិ។ របាំអប្សរា របាំព្រះរាជទ្រព្យ និងល្ខោនខោល គឺជាសម្បត្តិបេតិកភណ្ឌអរូបីដែលយើងត្រូវចូលរួមថែរក្សា។ ការយល់ដឹងពីវប្បធម៌ខ្លួនឯង ធ្វើឱ្យយើងមានមោទនភាពជាតិ។",
+            "បរិស្ថានស្អាតនាំមកនូវសុខភាពល្អ។ ការទុកដាក់សំរាមឱ្យបានត្រឹមត្រូវ និងការកាត់បន្ថយការប្រើប្រាស់ថង់ប្លាស្ទិក គឺជាការចូលរួមចំណែកដ៏សំខាន់ក្នុងការការពារបរិស្ថាន។ យើងគួរដាំដើមឈើឱ្យបានច្រើន ដើម្បីបង្កើតភាពបៃតងនិងកាត់បន្ថយការឡើងកម្ដៅនៃផែនដី។ ផែនដីគឺជាផ្ទះរបស់យើង ដូច្នេះយើងត្រូវថែរក្សាវាឱ្យបានល្អ។",
+            "កីឡាមិនត្រឹមតែនាំមកនូវសុខភាពផ្លូវកាយនិងផ្លូវចិត្តប៉ុណ្ណោះទេ ថែមទាំងបង្កើតមិត្តភាពនិងសាមគ្គីភាពផងដែរ។ ការលេងកីឡាជួយឱ្យយើងចេះធ្វើការជាក្រុម ចេះអត់ធ្មត់ និងចេះគោរពច្បាប់។ យុវជនគួរចំណាយពេលវេលាលេងកីឡា ជាជាងការចំណាយពេលឥតប្រយោជន៍។ កីឡាជាស្ពានមិត្តភាពសន្តិភាពនិងការអភិវឌ្ឍ។",
+            "សីលធម៌ល្អគឺជាគុណតម្លៃរបស់មនុស្ស។ ការគោរពចាស់ទុំ មាតាបិតា និងលោកគ្រូអ្នកគ្រូ គឺជាប្រពៃណីដ៏ល្អផូរផង់របស់ខ្មែរ។ មនុស្សដែលមានសីលធម៌ល្អតែងតែទទួលបានការគោរពស្រឡាញ់ពីអ្នកដទៃ។ នៅក្នុងសង្គម ការចេះជួយគ្នាទៅវិញទៅមកក្នុងគ្រាអាសន្ន គឺជាធម៌សប្បុរសដែលយើងគួរប្រតិបត្តិ។",
+            "ការអានគឺជាមូលដ្ឋានគ្រឹះនៃចំណេះដឹង។ អ្នកដែលចូលចិត្តអានសៀវភៅ តែងតែមានគំនិតទូលំទូលាយនិងចេះដោះស្រាយបញ្ហាបានល្អ។ យើងគួររៀបចំពេលវេលាអានសៀវភៅឱ្យបានយ៉ាងតិច៣០នាទីក្នុងមួយថ្ងៃ។ បណ្ណាល័យគឺជាឃ្លាំងនៃចំណេះដឹងដែលយើងគួរទៅសិក្សាស្រាវជ្រាវ។ ចំណេះដឹងគឺជាអំណាច។",
+            "កសិកម្មគឺជាវិស័យស្នូលនៃសេដ្ឋកិច្ចកម្ពុជា។ ប្រជាជនភាគច្រើនប្រកបរបរធ្វើស្រែចម្ការ។ ការប្រើប្រាស់បច្ចេកទេសកសិកម្មទំនើបនឹងជួយបង្កើនទិន្នផលនិងលើកកម្ពស់ជីវភាពកសិករ។ យើងគួរគាំទ្រផលិតផលកសិកម្មក្នុងស្រុក ដើម្បីលើកទឹកចិត្តដល់កសិករខ្មែរ។ ស្រូវគឺជាដំណាំយុទ្ធសាស្ត្រដែលធានាសន្តិសុខស្បៀង។",
+            "សន្តិភាពគឺជាកត្តាមូលដ្ឋានសម្រាប់ការអភិវឌ្ឍ។ ប្រសិនបើគ្មានសន្តិភាពទេ យើងមិនអាចកសាងប្រទេសជាតិឱ្យរីកចម្រើនបានឡើយ។ យើងត្រូវចងចាំពីប្រវត្តិសាស្ត្រដ៏ជូរចត់នៃសង្គ្រាម ដើម្បីកុំឱ្យវាវិលត្រឡប់មកវិញ។ ការថែរក្សាសន្តិភាពគឺជាកាតព្វកិច្ចរបស់ពលរដ្ឋខ្មែរគ្រប់រូប។",
+            "យុវជនគឺជាទំពាំងស្នងឫស្សី។ យុវជនដែលមានសមត្ថភាពនិងគុណធម៌ នឹងក្លាយជាអ្នកដឹកនាំល្អនៅថ្ងៃអនាគត។ ដូច្នេះយុវជនត្រូវខិតខំរៀនសូត្រ និងចូលរួមសកម្មភាពសង្គមឱ្យបានច្រើន។ ការចូលរួមរបស់យុវជនក្នុងការអភិវឌ្ឍសហគមន៍ គឺជាកម្លាំងចលករដ៏សំខាន់ដែលមិនអាចខ្វះបាន។",
+            "ការធ្វើដំណើរឆ្លងកាត់ខេត្តនានាក្នុងប្រទេសកម្ពុជា ធ្វើឱ្យយើងបានឃើញនូវទិដ្ឋភាពដ៏ស្រស់ត្រកាលនៃវាលស្រែ ភ្នំ និងទន្លេ។ ស្ពានគីហ្សូណា ស្ពានអ្នកលឿង និងស្ពានផ្សេងៗទៀត បានតភ្ជាប់ទំនាក់ទំនងរវាងប្រជាជននិងជួយសម្រួលដល់ការដឹកជញ្ជូន។ ការអភិវឌ្ឍហេដ្ឋារចនាសម្ព័ន្ធគឺជាសរសៃឈាមនៃសេដ្ឋកិច្ចជាតិ។"
         ];
 
         const COURSES = {
             en: [
-                { id: 1, title: "Level 1: Home Row", lessons: generateLessons(["asdf", "jkl;", "sad", "dad", "fad", "all", "fall", "ask", "add", "flask"], 10) },
-                { id: 2, title: "Level 2: Top Row", lessons: generateLessons(["qwer", "tyui", "op", "pot", "top", "tree", "were", "quit", "rope", "power"], 10) },
-                { id: 3, title: "Level 3: Bottom Row", lessons: generateLessons(["zxcv", "bnm", "zap", "cab", "van", "man", "ban", "zone", "come", "name"], 10) },
-                { id: 4, title: "Level 4: Numbers", lessons: generateLessons(["123", "456", "789", "0", "10", "2024", "100%", "5+5", "1999", "12345"], 10) },
-                // Levels 5-9: 15 Long texts
-                { id: 5, title: "Level 5: Basic Sentences", lessons: generateLessons(EN_LONG.slice(0, 5), 15) },
-                { id: 6, title: "Level 6: Capitalization", lessons: generateLessons(EN_LONG.slice(5, 10), 15) },
-                { id: 7, title: "Level 7: Punctuation", lessons: generateLessons(EN_LONG.slice(10, 15), 15) },
-                { id: 8, title: "Level 8: Advanced Typing", lessons: generateLessons([...EN_LONG].reverse(), 15) },
-                { id: 9, title: "Level 9: Mastery", lessons: generateLessons([...EN_LONG, ...EN_LONG], 15) }
+                { id: 1, title: "Level 1: Home Row Basics", lessons: generateLessons([
+                    "aaaa ssss dddd ffff jjjj kkkk llll ;;;; asdf jkl; asdf jkl;",
+                    "sad dad fad all fall ask add flask lass fads jads",
+                    "asdf jkl; aa ss dd ff jj kk ll ;; asdf jkl; asdf jkl;",
+                    "fads lads dads sads all fall hall kall jall lall",
+                    "aaaa ssss dddd ffff gggg hhhh jjjj kkkk llll ;;;;",
+                    "aka ala asa ada afa aga aha aja aka ala ama ana",
+                    "ask a lad; a sad dad; a fall ad; asdf jkl; asdf",
+                    "skiff skill skull slask slash flash flask flak flax",
+                    "half hall hash hath jazz kaff kaja kaka kala kapa",
+                    "saka sala salal sals salsilla sash sass shag shah"
+                ], 10) },
+                { id: 2, title: "Level 2: Top Row Keys", lessons: generateLessons([
+                    "qqqq wwww eeee rrrr tttt yyyy uuuu iiii oooo pppp",
+                    "qwer tyui op qwer tyui op qwer tyui op qwer tyui",
+                    "pot top tree were quit rope power tower route quiet",
+                    "your tour pour four sour hour lour dour gour jour",
+                    "write white quite quote query queue quay quip quit",
+                    "tree three thee there their they then them the",
+                    "people purple pepper popper pippin pippi pipe pip",
+                    "eye ewe ore our out owe owl own rue rut rye",
+                    "true try toy toe too two tie tip tit tot",
+                    "were we where who what when why will with wit"
+                ], 10) },
+                { id: 3, title: "Level 3: Bottom Row Keys", lessons: generateLessons([
+                    "zzzz xxxx cccc vvvv bbbb nnnn mmmm ,,,, .... ////",
+                    "zxcv bnm zxcv bnm zxcv bnm zxcv bnm zxcv bnm ,./",
+                    "zap cab van man ban zone come name none move",
+                    "can fan man pan ran tan van wan zan ban",
+                    "zinc zone zero zebra zoom zany zeal zest zinc",
+                    "scan scam span spam swam swan bran cyan plan",
+                    "back pack rack sack tack lack jack hack mac",
+                    "cava cave cove dive dove drive drove five gave",
+                    "numb name nine none noon noun now new net",
+                    "moon mom mine mind mend men man main mail"
+                ], 10) },
+                { id: 4, title: "Level 4: Numbers & Symbols", lessons: generateLessons([
+                    "1111 2222 3333 4444 5555 6666 7777 8888 9999 0000",
+                    "123 456 789 0 10 11 12 13 14 15 16 17 18 19 20",
+                    "1990 1991 1992 1993 1994 1995 1996 1997 1998 1999",
+                    "2000 2001 2002 2003 2004 2005 2006 2007 2008 2009",
+                    "! @ # $ % ^ & * ( ) _ + { } | : \" < > ?",
+                    "Price: $19.99; Discount: 20%; Total: $15.99 (Save $4)",
+                    "Email: user@example.com; Phone: (123) 456-7890 #101",
+                    "5 + 5 = 10; 10 - 2 = 8; 3 * 3 = 9; 20 / 4 = 5",
+                    "Date: 01/01/2024; Time: 12:00 PM; Location: Room 101",
+                    "ID: #12345; Code: A-B-C; Ref: X/Y/Z; Pct: 100%"
+                ], 10) },
+                // Levels 5-9: 15 Long texts (3 lines)
+                { id: 5, title: "Level 5: Sentences & Flow", lessons: generateLessons(EN_LONG.slice(0, 3), 15) },
+                { id: 6, title: "Level 6: Science & Tech", lessons: generateLessons(EN_LONG.slice(3, 6), 15) },
+                { id: 7, title: "Level 7: Life & Wisdom", lessons: generateLessons(EN_LONG.slice(6, 9), 15) },
+                { id: 8, title: "Level 8: Nature & Arts", lessons: generateLessons(EN_LONG.slice(9, 12), 15) },
+                { id: 9, title: "Level 9: Mastery Challenge", lessons: generateLessons(EN_LONG.slice(12, 15), 15) }
             ],
             km: [
-                { id: 1, title: "វគ្គទី ១៖ ជួរកណ្តាល", lessons: generateLessons(["កកក", "ខខខ", "ចចច", "ឆឆឆ", "ដដដ", "ណណណ", "តតត", "ថថថ", "កខចឆ", "ដណតថ"], 10) },
-                { id: 2, title: "វគ្គទី ២៖ ជួរលើ", lessons: generateLessons(["ងងង", "រររ", "ញញញ", "ភភភ", "ទទទ", "ធធធ", "យយយ", "សសស", "ហហហ", "អអអ"], 10) },
-                { id: 3, title: "វគ្គទី ៣៖ ជួរក្រោម", lessons: generateLessons(["វវវ", "បបប", "ននន", "មមម", "៊៊៊", "ិិិ", "ីីី", "ឹឹឹ", "ឺឺឺ", "ុុុ"], 10) },
-                { id: 4, title: "វគ្គទី ៤៖ លេខខ្មែរ", lessons: generateLessons(["១២៣", "៤៥៦", "៧៨៩", "០", "១០", "២០២៤", "១០០", "៥+៥", "១៩៩៩", "១២៣៤៥"], 10) },
-                // Levels 5-9: 15 Long texts
-                { id: 5, title: "វគ្គទី ៥៖ ប្រយោគមូលដ្ឋាន", lessons: generateLessons(KM_LONG.slice(0, 5), 15) },
-                { id: 6, title: "វគ្គទី ៦៖ ស្រៈនិស្ស័យ", lessons: generateLessons(KM_LONG.slice(5, 10), 15) },
-                { id: 7, title: "វគ្គទី ៧៖ វណ្ណយុត្តិ", lessons: generateLessons(KM_LONG.slice(10, 15), 15) },
-                { id: 8, title: "វគ្គទី ៨៖ អត្ថបទកម្រិតខ្ពស់", lessons: generateLessons([...KM_LONG].reverse(), 15) },
-                { id: 9, title: "វគ្គទី ៩៖ កំពូលអ្នកវាយ", lessons: generateLessons([...KM_LONG, ...KM_LONG], 15) }
+                { id: 1, title: "វគ្គទី ១៖ ជួរកណ្តាល (Home Row)", lessons: generateLessons([
+                    "កកក ខខខ ចចច ឆឆឆ ដដដ ណណណ តតត ថថថ កខចឆ ដណតថ",
+                    "កកកដដដ ខខខណណណ ចចចតតត ឆឆឆថថថ កខចឆ ដណតថ កខចឆដណតថ",
+                    "កា ខា ចា ឆា ដា ណា តា ថា កាខាចាឆា ដាណាតាថា",
+                    "កដ ខណ ចត ឆថ កដខណ ចតឆថ កខចឆដណតថ កខចឆដណតថ",
+                    "ឆក ចក ខក កក ថត តត ណត ដត ឆកចកខក ថតតតណតដត",
+                    "កកឯង ខខឯង ចចឯង ឆឆឯង ដដឯង ណណឯង តតឯង ថថឯង",
+                    "កាច ខាច ចាច ឆាច ដាច ណាច តាច ថាច កាចខាចចាច",
+                    "កាត់ ខាត់ ចាត់ ឆាត់ ដាត់ ណាត់ តាត់ ថាត់",
+                    "កុក ខុក ចុក ឆុក ដុក ណុក តុក ថុក កុកខុកចុក",
+                    "កែ ខែ ចែ ឆែ ដែ ណែ តែ ថែ កែខែចែឆែដែណែ"
+                ], 10) },
+                { id: 2, title: "វគ្គទី ២៖ ជួរលើ (Top Row)", lessons: generateLessons([
+                    "ងងង រររ ញញញ ភភភ ទទទ ធធធ យយយ សសស ហហហ អអអ",
+                    "ងរញភ ទធយស ហអ ងរញភទធយសហអ ងរញភទធយសហអ",
+                    "ងា រា ញា ភា ទា ធា យ៉ា សា ហា អា ងារាញាភា",
+                    "ងង ររ ញញ ភភ ទទ ធធ យយ សស ហហ អអ",
+                    "ងៃ រៃ ញៃ ភៃ ទៃ ធៃ យៃ សៃ ហៃ អៃ",
+                    "សរសេរ ទៅរៀន ញ៉ាំបាយ ភាសា ធានា អាហារ ងាយស្រួល",
+                    "ទេសចរណ៍ ធនធាន សាសនា អារ្យធម៌ ហិរញ្ញវត្ថុ ភូមិសាស្រ្ត",
+                    "រីករាយ រាក់ទាក់ សាមគ្គី ធំធេង ញញឹម ស្វាហាប់ ហ្មត់ចត់",
+                    "ទិញ របស់ របរ ប្រើប្រាស់ សម្រាប់ គ្រួសារ យ៉ាង សប្បាយ",
+                    "អាហារ ពេលព្រឹក ពេលថ្ងៃ ពេលល្ងាច គឺ សំខាន់ ណាស់"
+                ], 10) },
+                { id: 3, title: "វគ្គទី ៣៖ ជួរក្រោម (Bottom Row)", lessons: generateLessons([
+                    "វវវ បបប ននន មមម ៊៊៊ ិិិ ីីី ឹឹឹ ឺឺឺ ុុុ ូូូ",
+                    "វបនម វបនម វបនម វបនម វបនម វបនម វបនម",
+                    "វា បា នា ម៉ា វ៉ា ប៉ា ណ៉ា ម៉ា វ៉ាប៉ាណ៉ាម៉ា",
+                    "វិ បិ និ ម៉ិ វី បី នី ម៉ី វឹ បឹ នឹ ម៉ឹ",
+                    "វុ បុ នុ មុ វូ បូ នូ មូ វួ បួ នួ មួ",
+                    "វប្បធម៌ បុរាណ នារី មាតា និស្សិត វិទ្យាល័យ បឋមសិក្សា",
+                    "មាន បាន នាម ម៉ាន វាន បាន នាន មានបាននាម",
+                    "មូលធន និមិត្តរូប វិញ្ញាសា ពិនិត្យ ពិពិធកម្ម វិនិយោគ",
+                    "បុរី នគរ មហានគរ វរ្ម័ន បុព្វបុរស វីរជន",
+                    "រូបមន្ត នីតិវិធី វិន័យ បរិស្ថាន មនសិការ វិជ្ជាជីវៈ"
+                ], 10) },
+                { id: 4, title: "វគ្គទី ៤៖ លេខ និង សញ្ញា", lessons: generateLessons([
+                    "១១១ ១២២ ៣៣៣ ៤៤៤ ៥៥៥ ៦៦៦ ៧៧៧ ៨៨៨ ៩៩៩ ០០០",
+                    "១២៣ ៤៥៦ ៧៨៩ ០ ១០ ១១ ១២ ១៣ ១៤ ១៥ ១៦",
+                    "១៩៩០ ១៩៩១ ១៩៩២ ១៩៩៣ ១៩៩៤ ១៩៩៥ ១៩៩៦ ១៩៩៧",
+                    "២០០០ ២០០១ ២០០២ ២០០៣ ២០០៤ ២០០៥ ២០០៦ ២០០៧",
+                    "១ + ១ = ២; ២ x ២ = ៤; ១០ - ៥ = ៥; ២០ / ៤ = ៥",
+                    "តម្លៃ៖ ១០០០៛ (មួយពាន់រៀល); ចុះតម្លៃ ១០% សម្រាប់សិស្ស",
+                    "លេខទូរស័ព្ទ៖ ០១២ ៣៤៥ ៦៧៨; ០៩៧ ៧៦៥ ៤៣២១",
+                    "ថ្ងៃទី ០១ ខែ មករា ឆ្នាំ ២០២៤; ម៉ោង ០៧:០០ ព្រឹក",
+                    "សញ្ញា៖ ! ? « » ៖ ។ ៗ ( ) { } [ ]",
+                    "១០០% ៥០% ២៥% ១០% ៥% ១% ០.៥% ០.១%"
+                ], 10) },
+                // Levels 5-9: 15 Long texts (3 lines)
+                { id: 5, title: "វគ្គទី ៥៖ ប្រវត្តិសាស្ត្រ និង វប្បធម៌", lessons: generateLessons(KM_LONG.slice(0, 3), 15) },
+                { id: 6, title: "វគ្គទី ៦៖ សុខភាព និង ទេសចរណ៍", lessons: generateLessons(KM_LONG.slice(3, 6), 15) },
+                { id: 7, title: "វគ្គទី ៧៖ សង្គម និង បរិស្ថាន", lessons: generateLessons(KM_LONG.slice(6, 9), 15) },
+                { id: 8, title: "វគ្គទី ៨៖ ការអប់រំ និង កសិកម្ម", lessons: generateLessons(KM_LONG.slice(9, 12), 15) },
+                { id: 9, title: "វគ្គទី ៩៖ សន្តិភាព និង ការអភិវឌ្ឍ", lessons: generateLessons(KM_LONG.slice(12, 15), 15) }
             ]
         };
 
@@ -534,6 +621,20 @@
                     }
                 }
             };
+
+            // Enable 'Enter' key to proceed to Next Text
+            useEffect(() => {
+                const handleEnterKey = (e) => {
+                    // Check if lesson is finished AND course is NOT complete
+                    if (isFinished && !showCourseComplete && e.key === 'Enter') {
+                        e.preventDefault();
+                        handleNext();
+                    }
+                };
+
+                window.addEventListener('keydown', handleEnterKey);
+                return () => window.removeEventListener('keydown', handleEnterKey);
+            }); // Run on every render to ensure latest state in handleNext is used
 
             const requestReset = () => {
                 setShowResetConfirm(true);
