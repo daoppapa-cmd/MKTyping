@@ -712,12 +712,8 @@
                 );
             }
 
-            // --- REGISTRATION CHECK ---
-            if (!user) {
-                return <RegistrationForm onRegister={(data) => setUser(data)} />;
-            }
-
             // --- MOBILE / TABLET BLOCKING SCREEN ---
+            // MOVED UP: Check for mobile device BEFORE checking for registration
             if (!isDesktop) {
                 return (
                 <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center font-sans">
@@ -747,6 +743,11 @@
                     </div>
                 </div>
                 );
+            }
+
+            // --- REGISTRATION CHECK ---
+            if (!user) {
+                return <RegistrationForm onRegister={(data) => setUser(data)} />;
             }
 
             const fontStyle = lang === 'km' ? "font-['Hanuman',_sans-serif] text-2xl md:text-3xl leading-loose" : "font-mono text-2xl md:text-3xl leading-relaxed";
