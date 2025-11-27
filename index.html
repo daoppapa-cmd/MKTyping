@@ -62,10 +62,9 @@
 
     <script type="text/babel" data-type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        // Added onDisconnect, onValue, serverTimestamp imports
         import { getDatabase, ref, set, get, child, onDisconnect, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useMemo } = React;
 
         // --- FIREBASE CONFIGURATION ---
         const firebaseConfig = {
@@ -103,140 +102,81 @@
         const MonitorIcon = (props) => <Icon {...props} path={<><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></>} />;
         const SmartphoneIcon = (props) => <Icon {...props} path={<><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></>} />;
         const UserIcon = (props) => <Icon {...props} path={<><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>} />;
+        const StarIcon = (props) => <Icon {...props} path={<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />} />;
 
-        // --- DATA ---
+        // --- COURSE DATA GENERATOR ---
+        // Helper to create array of N items
+        const generateLessons = (baseTexts, count) => {
+            const result = [];
+            for (let i = 0; i < count; i++) {
+                result.push(baseTexts[i % baseTexts.length]);
+            }
+            return result;
+        };
+
+        // --- CONTENT DATA ---
+        const EN_SHORT = ["asdf", "jkl;", "qwer", "uiop", "zxcv", "nm,.", "tygh", "bnmv", "asdf jkl;", "the quick"];
+        const EN_LONG = [
+            "The quick brown fox jumps over the lazy dog.",
+            "Practice makes perfect in every skill you learn.",
+            "React is a popular JavaScript library for building user interfaces.",
+            "Consistency is key to mastering touch typing.",
+            "Technology is changing the world at a rapid pace.",
+            "Coding is the new literacy in the digital age.",
+            "Learning to type fast saves you hundreds of hours.",
+            "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+            "Believe you can and you're halfway there.",
+            "Do what you can, with what you have, where you are.",
+            "The only way to do great work is to love what you do.",
+            "In the middle of every difficulty lies opportunity.",
+            "Happiness is not something ready made. It comes from your own actions.",
+            "It always seems impossible until it is done.",
+            "Dream big and dare to fail."
+        ];
+
+        const KM_SHORT = ["កកក", "ខខខ", "ចចច", "ឆឆឆ", "ដដដ", "ណណណ", "តតត", "ថថថ", "កខចឆ", "ដណតថ"];
+        const KM_LONG = [
+            "ខ្ញុំស្រឡាញ់ប្រទេសកម្ពុជាដែលមានប្រាសាទអង្គរវត្តជាសម្បត្តិបេតិកភណ្ឌពិភពលោក។",
+            "ការសិក្សាគឺជាគន្លឹះនៃភាពជោគជ័យក្នុងជីវិតនិងអនាគត។",
+            "សាមគ្គីភាពនាំមកនូវសន្តិភាពនិងការរីកចម្រើនដល់សង្គមជាតិ។",
+            "រាជធានីភ្នំពេញគឺជាបេះដូងនៃព្រះរាជាណាចក្រកម្ពុជា។",
+            "ព្យាយាមគង់បានសម្រេច ដូចពាក្យចាស់ពោលថា គង់មានថ្ងៃជោគជ័យ។",
+            "សុខភាពគឺជាទ្រព្យសម្បត្តិដ៏មានតម្លៃបំផុតសម្រាប់មនុស្សគ្រប់រូប។",
+            "ការគោរពចាស់ទុំគឺជាប្រពៃណីដ៏ល្អផូរផង់របស់ប្រជាជនខ្មែរ។",
+            "សូមចូលរួមការពារបរិស្ថានដើម្បីផែនដីរបស់យើងទាំងអស់គ្នា។",
+            "បច្ចេកវិទ្យាព័ត៌មានកំពុងអភិវឌ្ឍយ៉ាងខ្លាំងក្លានៅក្នុងយុគសម័យនេះ។",
+            "ការអានសៀវភៅជួយពង្រីកចំណេះដឹងនិងបង្កើនសមត្ថភាពគិត។",
+            "ទេសចរណ៍គឺជាមាសបៃតងដែលជួយទ្រទ្រង់សេដ្ឋកិច្ចជាតិ។",
+            "ញញឹមស្វាគមន៍ភ្ញៀវទេសចរណ៍ដែលមកទស្សនាប្រទេសយើង។",
+            "កីឡានាំមកនូវសុខភាព មិត្តភាព និងសាមគ្គីភាព។",
+            "ស្រឡាញ់ជាតិ ត្រូវហ៊ានលះបង់ដើម្បីបុព្វហេតុជាតិ។",
+            "ធ្វើល្អបានល្អ ធ្វើអាក្រក់បានអាក្រក់ គឺជាច្បាប់ធម្មជាតិ។"
+        ];
+
         const COURSES = {
             en: [
-                { 
-                id: 1, 
-                title: "Level 1: Home Row Basics", 
-                lessons: [
-                    "aaaa ssss dddd ffff",
-                    "jjjj kkkk llll ;;;;",
-                    "asdf jkl; asdf jkl;",
-                    "a s d f j k l ;",
-                    "sad dad fad all fall",
-                    "flask ask jak salad",
-                    "adads jkll; fads",
-                    "aaaa bbbb cccc dddd",
-                    "aa ss dd ff jj kk ll ;;",
-                    "dad has a salad"
-                ]
-                },
-                { 
-                id: 2, 
-                title: "Level 2: Top & Bottom Rows", 
-                lessons: [
-                    "qqq www eee rrr ttt",
-                    "yyy uuu iii ooo ppp",
-                    "zzz xxx ccc vvv bbb",
-                    "nnn mmm ,,, ...",
-                    "qwerty uiop zxcvb",
-                    "the quick brown fox",
-                    "pack my box now",
-                    "run for the zoo",
-                    "very big zebra",
-                    "new moon over water"
-                ]
-                },
-                {
-                id: 3, 
-                title: "Level 3: Capital Letters & Sentences", 
-                lessons: [
-                    "Alice and Bob are friends.",
-                    "The Sun_rises in the East.",
-                    "React is a JS library.",
-                    "Hello World! How are you?",
-                    "Monday Tuesday Wednesday",
-                    "January February_March",
-                    "I love coding in React.",
-                    "Keep Calm and Type On.",
-                    "A Quick Brown Fox.",
-                    "Practice_makes perfect."
-                ]
-                },
-                {
-                id: 4,
-                title: "Level 4: Numbers & Symbols",
-                lessons: [
-                    "12345 67890 123 456",
-                    "!@#$ %^&* ()_+",
-                    "Email: user@example.com",
-                    "Price: $19.99 (20% off)",
-                    "Calculation: 5 + 5 = 10",
-                    "Date: 01/01/2024",
-                    "#Coding #Life #React",
-                    "Print('Hello World');",
-                    "Warning: System Error!",
-                    "100% Accuracy is the goal."
-                ]
-                }
+                { id: 1, title: "Level 1: Home Row", lessons: generateLessons(["asdf", "jkl;", "sad", "dad", "fad", "all", "fall", "ask", "add", "flask"], 10) },
+                { id: 2, title: "Level 2: Top Row", lessons: generateLessons(["qwer", "tyui", "op", "pot", "top", "tree", "were", "quit", "rope", "power"], 10) },
+                { id: 3, title: "Level 3: Bottom Row", lessons: generateLessons(["zxcv", "bnm", "zap", "cab", "van", "man", "ban", "zone", "come", "name"], 10) },
+                { id: 4, title: "Level 4: Numbers", lessons: generateLessons(["123", "456", "789", "0", "10", "2024", "100%", "5+5", "1999", "12345"], 10) },
+                // Levels 5-9: 15 Long texts
+                { id: 5, title: "Level 5: Basic Sentences", lessons: generateLessons(EN_LONG.slice(0, 5), 15) },
+                { id: 6, title: "Level 6: Capitalization", lessons: generateLessons(EN_LONG.slice(5, 10), 15) },
+                { id: 7, title: "Level 7: Punctuation", lessons: generateLessons(EN_LONG.slice(10, 15), 15) },
+                { id: 8, title: "Level 8: Advanced Typing", lessons: generateLessons([...EN_LONG].reverse(), 15) },
+                { id: 9, title: "Level 9: Mastery", lessons: generateLessons([...EN_LONG, ...EN_LONG], 15) }
             ],
             km: [
-                { 
-                id: 1, 
-                title: "វគ្គទី ១៖ ព្យញ្ជនៈជួរកណ្តាល", 
-                lessons: [
-                    "កកក ខខខ ចចច ឆឆឆ",
-                    "ដដដ ណណណ តតត ថថថ",
-                    "កខចឆ ដណតថ",
-                    "ក ខ ច ឆ ដ ណ ត ថ",
-                    "កដ ចថ ខណ ឆត",
-                    "កក ខខ ចច ឆឆ ដដ",
-                    "ណណ តត ថថ",
-                    "កខ ចឆ ដណ តថ",
-                    "ថត ឆក ដច ខណ",
-                    "កខចឆដណតថ"
-                ]
-                },
-                { 
-                id: 2, 
-                title: "វគ្គទី ២៖ ស្រៈនិស្ស័យ និង វណ្ណយុត្តិ", 
-                lessons: [
-                    "ា ិ ី ឹ ឺ ុ ូ ួ",
-                    "ើ ឿ ៀ េ ែ ៃ ោ ៅ",
-                    "កា គី ជួ ដេ តៃ",
-                    "ខុំ ចាំ ឆេះ តែ",
-                    "សួស្តី ពី កម្ពុជា",
-                    "។ ៗ ៖ « » ? !",
-                    "ដើរ លេង ក្នុង ព្រៃ",
-                    "ញាំ បាយ នៅ ផ្ទះ",
-                    "១ ២ ៣ ៤ ៥",
-                    "សាមគ្គី គឺ ជា កម្លាំង"
-                ]
-                },
-                { 
-                id: 3, 
-                title: "វគ្គទី ៣៖ ជើងអក្សរ និង ប្រយោគ", 
-                lessons: [
-                    "ខ្ញុំ ស្រលាញ់ អ្នក",
-                    "ខ្មែរ ខ្លាំង ក្លា",
-                    "គ្រូ បង្រៀន សិស្ស",
-                    "ស្ត្រី និង បុរស",
-                    "វិទ្យាសាស្ត្រ និង បច្ចេកវិទ្យា",
-                    "សន្តិភាព និង ការអភិវឌ្ឍ",
-                    "ភ្នំពេញ ស្អាត ណាស់",
-                    "អង្គរវត្ត ជា អច្ឆរិយ",
-                    "ព្យាយាម គង់ បាន សម្រេច",
-                    "រៀន ឲ្យ ចេះ មិនមែន រៀន ឲ្យ ចប់"
-                ]
-                },
-                {
-                id: 4,
-                title: "វគ្គទី ៤៖ អត្ថបទខ្លីៗ",
-                lessons: [
-                    "នៅ ក្នុង ព្រៃ មាន សត្វ ច្រើន។",
-                    "ការ អាន សៀវភៅ ជួយ បង្កើន ចំណេះដឹង។",
-                    "សូម គោរព ច្បាប់ ចរាចរណ៍ ទាំងអស់ គ្នា។",
-                    "សុខភាព គឺ ជា ទ្រព្យ ដ៏ មាន តម្លៃ។",
-                    "តើ អ្នក ឈ្មោះ អ្វី? ខ្ញុំ ឈ្មោះ សុខ។",
-                    "១ + ១ = ២; ២ x ២ = ៤",
-                    "តម្លៃ $៥០.០០ (បញ្ចុះតម្លៃ ១០%)",
-                    "អ៊ីមែល៖ contact@example.com",
-                    "ហាម ជក់ បារី នៅ ទីនេះ!",
-                    "រីករាយ ថ្ងៃ ចូល ឆ្នាំ ថ្មី ប្រពៃណី ជាតិ។"
-                ]
-                }
+                { id: 1, title: "វគ្គទី ១៖ ជួរកណ្តាល", lessons: generateLessons(["កកក", "ខខខ", "ចចច", "ឆឆឆ", "ដដដ", "ណណណ", "តតត", "ថថថ", "កខចឆ", "ដណតថ"], 10) },
+                { id: 2, title: "វគ្គទី ២៖ ជួរលើ", lessons: generateLessons(["ងងង", "រររ", "ញញញ", "ភភភ", "ទទទ", "ធធធ", "យយយ", "សសស", "ហហហ", "អអអ"], 10) },
+                { id: 3, title: "វគ្គទី ៣៖ ជួរក្រោម", lessons: generateLessons(["វវវ", "បបប", "ននន", "មមម", "៊៊៊", "ិិិ", "ីីី", "ឹឹឹ", "ឺឺឺ", "ុុុ"], 10) },
+                { id: 4, title: "វគ្គទី ៤៖ លេខខ្មែរ", lessons: generateLessons(["១២៣", "៤៥៦", "៧៨៩", "០", "១០", "២០២៤", "១០០", "៥+៥", "១៩៩៩", "១២៣៤៥"], 10) },
+                // Levels 5-9: 15 Long texts
+                { id: 5, title: "វគ្គទី ៥៖ ប្រយោគមូលដ្ឋាន", lessons: generateLessons(KM_LONG.slice(0, 5), 15) },
+                { id: 6, title: "វគ្គទី ៦៖ ស្រៈនិស្ស័យ", lessons: generateLessons(KM_LONG.slice(5, 10), 15) },
+                { id: 7, title: "វគ្គទី ៧៖ វណ្ណយុត្តិ", lessons: generateLessons(KM_LONG.slice(10, 15), 15) },
+                { id: 8, title: "វគ្គទី ៨៖ អត្ថបទកម្រិតខ្ពស់", lessons: generateLessons([...KM_LONG].reverse(), 15) },
+                { id: 9, title: "វគ្គទី ៩៖ កំពូលអ្នកវាយ", lessons: generateLessons([...KM_LONG, ...KM_LONG], 15) }
             ]
         };
 
@@ -253,26 +193,12 @@
 
             const handleChange = (e) => {
                 const { name, value } = e.target;
-
-                // Phone Validation: Only allow numbers
                 if (name === 'phone') {
-                    // Remove any non-numeric characters
                     const numericValue = value.replace(/\D/g, '');
-                    
-                    // Clear error if user starts typing correctly
-                    if (numericValue.length > 0) {
-                        setPhoneError('');
-                    }
-
-                    setFormData({
-                        ...formData,
-                        [name]: numericValue
-                    });
+                    if (numericValue.length > 0) setPhoneError('');
+                    setFormData({ ...formData, [name]: numericValue });
                 } else {
-                    setFormData({
-                        ...formData,
-                        [name]: value
-                    });
+                    setFormData({ ...formData, [name]: value });
                 }
             };
 
@@ -281,24 +207,19 @@
                 setIsSubmitting(true);
                 setPhoneError('');
                 
-                // Validate fields
                 if (!formData.fullName || !formData.skill || !formData.phone) {
                     alert('សូមបំពេញព័ត៌មានឱ្យបានគ្រប់គ្រាន់');
                     setIsSubmitting(false);
                     return;
                 }
 
-                // Strict Cambodia Phone Validation
-                // Starts with 0, followed by 8 or 9 digits (Total 9-10 digits)
                 const phoneRegex = /^0[1-9]\d{7,8}$/;
-
                 if (!phoneRegex.test(formData.phone)) {
                     setPhoneError('សូមបញ្ចូលលេខទូរស័ព្ទឱ្យបានត្រឹមត្រូវ (ឧ. 012345678)');
                     setIsSubmitting(false);
                     return;
                 }
 
-                // Get or Create Device ID
                 let deviceId = localStorage.getItem('mktyping-device-id');
                 if (!deviceId) {
                     deviceId = crypto.randomUUID();
@@ -312,12 +233,8 @@
                 };
 
                 try {
-                    // Save to Firebase
                     await set(ref(db, 'users/' + deviceId), userData);
-                    
-                    // Save to LocalStorage for quick access
                     localStorage.setItem('mktyping-user', JSON.stringify(userData));
-                    
                     onRegister(userData);
                 } catch (error) {
                     console.error("Error saving user data:", error);
@@ -341,80 +258,107 @@
                         <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-5">
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-2">ឈ្មោះពេញ (ភាសាខ្មែរ)</label>
-                                <input 
-                                    type="text" 
-                                    name="fullName"
-                                    value={formData.fullName}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
-                                    placeholder="ឧ. សុខ សាន្ត"
-                                    required
-                                />
+                                <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="ឧ. សុខ សាន្ត" required />
                             </div>
-
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-2">ភេទ</label>
                                 <div className="flex gap-4">
                                     <label className="flex items-center gap-2 cursor-pointer p-3 rounded-lg border border-slate-200 flex-1 has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 transition">
-                                        <input 
-                                            type="radio" 
-                                            name="gender" 
-                                            value="ប្រុស" 
-                                            checked={formData.gender === 'ប្រុស'}
-                                            onChange={handleChange}
-                                            className="w-4 h-4 text-blue-600"
-                                        />
+                                        <input type="radio" name="gender" value="ប្រុស" checked={formData.gender === 'ប្រុស'} onChange={handleChange} className="w-4 h-4 text-blue-600" />
                                         <span>ប្រុស</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer p-3 rounded-lg border border-slate-200 flex-1 has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 transition">
-                                        <input 
-                                            type="radio" 
-                                            name="gender" 
-                                            value="ស្រី" 
-                                            checked={formData.gender === 'ស្រី'}
-                                            onChange={handleChange}
-                                            className="w-4 h-4 text-blue-600"
-                                        />
+                                        <input type="radio" name="gender" value="ស្រី" checked={formData.gender === 'ស្រី'} onChange={handleChange} className="w-4 h-4 text-blue-600" />
                                         <span>ស្រី</span>
                                     </label>
                                 </div>
                             </div>
-
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-2">ជំនាញដែលកំពុងរៀន</label>
-                                <input 
-                                    type="text" 
-                                    name="skill"
-                                    value={formData.skill}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
-                                    placeholder="ឧ. ព័ត៌មានវិទ្យា"
-                                    required
-                                />
+                                <input type="text" name="skill" value={formData.skill} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="ឧ. ព័ត៌មានវិទ្យា" required />
                             </div>
-
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-2">លេខទូរស័ព្ទ</label>
-                                <input 
-                                    type="tel" 
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    className={`w-full px-4 py-3 rounded-lg border ${phoneError ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-200'} focus:ring-2 outline-none transition`}
-                                    placeholder="012 345 678"
-                                    required
-                                />
+                                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className={`w-full px-4 py-3 rounded-lg border ${phoneError ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-200'} focus:ring-2 outline-none transition`} placeholder="012 345 678" required />
                                 {phoneError && <p className="text-red-500 text-xs mt-1 ml-1">{phoneError}</p>}
                             </div>
-
-                            <button 
-                                type="submit" 
-                                disabled={isSubmitting}
-                                className="mt-2 w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition disabled:opacity-70 flex justify-center items-center gap-2"
-                            >
+                            <button type="submit" disabled={isSubmitting} className="mt-2 w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition disabled:opacity-70 flex justify-center items-center gap-2">
                                 {isSubmitting ? <div className="loader border-2 w-5 h-5 border-white border-t-transparent"></div> : 'ចុះឈ្មោះ និង ចាប់ផ្តើម'}
                             </button>
                         </form>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- FINAL SUMMARY COMPONENT ---
+        function CourseSummary({ history, onRestart }) {
+            const avgWpm = Math.round(history.reduce((acc, curr) => acc + curr.wpm, 0) / history.length) || 0;
+            const avgAcc = Math.round(history.reduce((acc, curr) => acc + curr.accuracy, 0) / history.length) || 0;
+
+            return (
+                <div className="text-center animate-in fade-in zoom-in duration-500 w-full max-w-2xl mx-auto">
+                    <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                        <div className="bg-blue-600 p-8 text-white">
+                            <div className="inline-block p-4 bg-white/20 rounded-full mb-4 backdrop-blur-sm">
+                                <AwardIcon className="w-16 h-16 text-yellow-300" />
+                            </div>
+                            <h2 className="text-3xl font-bold mb-2">អបអរសាទរ! អ្នកបានបញ្ចប់គ្រប់វគ្គហើយ</h2>
+                            <p className="opacity-90">ខាងក្រោមនេះគឺជាលទ្ធផលសរុបរបស់អ្នក</p>
+                        </div>
+                        
+                        <div className="p-8">
+                            <div className="flex justify-center gap-8 mb-8">
+                                <div className="text-center">
+                                    <div className="text-4xl font-bold text-blue-600 mb-1">{avgWpm}</div>
+                                    <div className="text-xs uppercase font-bold text-slate-400 tracking-wider">Average WPM</div>
+                                </div>
+                                <div className="w-px bg-slate-200"></div>
+                                <div className="text-center">
+                                    <div className="text-4xl font-bold text-green-600 mb-1">{avgAcc}%</div>
+                                    <div className="text-xs uppercase font-bold text-slate-400 tracking-wider">Average Accuracy</div>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-50 rounded-xl border border-slate-100 overflow-hidden mb-8">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm text-left">
+                                        <thead className="bg-slate-100 text-slate-600 font-bold">
+                                            <tr>
+                                                <th className="px-4 py-3">វគ្គ (Level)</th>
+                                                <th className="px-4 py-3 text-center">ល្បឿន (WPM)</th>
+                                                <th className="px-4 py-3 text-center">ត្រឹមត្រូវ (Accuracy)</th>
+                                                <th className="px-4 py-3 text-center">ពិន្ទុ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {history.map((item, index) => (
+                                                <tr key={index} className="hover:bg-white transition">
+                                                    <td className="px-4 py-3 font-medium text-slate-700">{item.title}</td>
+                                                    <td className="px-4 py-3 text-center text-blue-600 font-bold">{item.wpm}</td>
+                                                    <td className="px-4 py-3 text-center text-green-600 font-bold">{item.accuracy}%</td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        <div className="flex justify-center">
+                                                            {[...Array(item.accuracy >= 90 ? 3 : item.accuracy >= 80 ? 2 : 1)].map((_, i) => (
+                                                                <StarIcon key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                                            ))}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <button 
+                                onClick={onRestart}
+                                className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                            >
+                                <RotateCcwIcon className="w-5 h-5" />
+                                ចាប់ផ្តើមរៀនសារជាថ្មី
+                            </button>
+                        </div>
                     </div>
                 </div>
             );
@@ -432,29 +376,24 @@
             const [subIndex, setSubIndex] = useState(0);
             const [showResetConfirm, setShowResetConfirm] = useState(false);
             const [showCourseComplete, setShowCourseComplete] = useState(false);
+            const [history, setHistory] = useState([]); // To store results of each level
 
             // Check User Registration Status on Mount
             useEffect(() => {
                 const checkUserRegistration = async () => {
-                    // 1. Check LocalStorage first (Fastest)
                     const localUser = localStorage.getItem('mktyping-user');
                     if (localUser) {
                         setUser(JSON.parse(localUser));
                         setLoadingUser(false);
                         return;
                     }
-
-                    // 2. If not in local, check for Device ID
                     let deviceId = localStorage.getItem('mktyping-device-id');
-                    
                     if (deviceId) {
                         try {
-                            // 3. Check Firebase using Device ID
                             const snapshot = await get(child(ref(db), `users/${deviceId}`));
                             if (snapshot.exists()) {
                                 const userData = snapshot.val();
                                 setUser(userData);
-                                // Sync back to local storage
                                 localStorage.setItem('mktyping-user', JSON.stringify(userData));
                             }
                         } catch (error) {
@@ -463,26 +402,20 @@
                     }
                     setLoadingUser(false);
                 };
-
                 checkUserRegistration();
             }, []);
 
-            // --- PRESENCE SYSTEM (Online/Offline) ---
+            // Presence System
             useEffect(() => {
                 if (user && user.deviceId) {
                     const connectedRef = ref(db, ".info/connected");
                     const userStatusDatabaseRef = ref(db, `users/${user.deviceId}/status`);
-
                     const unsubscribe = onValue(connectedRef, (snap) => {
                         if (snap.val() === true) {
-                            // When connected
-                            
-                            // 1. Set to offline when disconnected (queued on server)
                             onDisconnect(userStatusDatabaseRef).set({
                                 state: 'offline',
                                 last_changed: serverTimestamp()
                             }).then(() => {
-                                // 2. Set to online now
                                 set(userStatusDatabaseRef, {
                                     state: 'online',
                                     last_changed: serverTimestamp()
@@ -490,44 +423,39 @@
                             });
                         }
                     });
-
-                    return () => {
-                        unsubscribe();
-                    };
+                    return () => unsubscribe();
                 }
             }, [user]);
 
             // Check screen size
             useEffect(() => {
                 const checkScreenSize = () => {
-                // 1024px is generally considered the breakpoint for Desktop/Laptop view
-                setIsDesktop(window.innerWidth >= 1024);
+                    setIsDesktop(window.innerWidth >= 1024);
                 };
-
-                checkScreenSize(); // Check on mount
+                checkScreenSize();
                 window.addEventListener('resize', checkScreenSize);
                 return () => window.removeEventListener('resize', checkScreenSize);
             }, []);
 
-            // Load progress on mount
+            // Load progress and history
             useEffect(() => {
                 try {
-                const saved = localStorage.getItem(`typing-progress-${lang}-v2`);
-                if (saved) {
-                    const { l, s } = JSON.parse(saved);
-                    // Validate indices
-                    if (COURSES[lang][l] && COURSES[lang][l].lessons[s]) {
-                    setLevelIndex(l);
-                    setSubIndex(s);
-                    return;
+                    const saved = localStorage.getItem(`typing-progress-${lang}-v3`); // Changed key to v3 for new structure
+                    if (saved) {
+                        const { l, s, h } = JSON.parse(saved);
+                        if (COURSES[lang][l] && COURSES[lang][l].lessons[s]) {
+                            setLevelIndex(l);
+                            setSubIndex(s);
+                            if (h) setHistory(h);
+                            return;
+                        }
                     }
-                }
                 } catch (e) {
-                console.error("Error loading progress", e);
+                    console.error("Error loading progress", e);
                 }
-                // Default fallback
                 setLevelIndex(0);
                 setSubIndex(0);
+                setHistory([]);
             }, [lang]);
 
             const [userInput, setUserInput] = useState('');
@@ -544,7 +472,6 @@
             const currentCourse = COURSES[lang][levelIndex] || COURSES[lang][0];
             const targetText = currentCourse.lessons[subIndex] || "";
 
-            // Reset Logic
             const resetLesson = () => {
                 setUserInput('');
                 setStartTime(null);
@@ -554,14 +481,11 @@
                 setWpm(0);
                 setAccuracy(100);
                 setErrorCount(0);
-                
-                // Slight delay to ensure element is enabled and rendered before focus
                 setTimeout(() => {
                     if(inputRef.current) inputRef.current.focus();
                 }, 10);
             };
 
-            // Trigger reset when level or sub-lesson changes
             useEffect(() => {
                 resetLesson();
             }, [levelIndex, subIndex, lang]);
@@ -570,38 +494,43 @@
                 setLang(prev => prev === 'en' ? 'km' : 'en');
             };
 
-            const saveProgress = (l, s) => {
+            const saveProgress = (l, s, h) => {
                 try {
-                localStorage.setItem(`typing-progress-${lang}-v2`, JSON.stringify({ l, s }));
+                    localStorage.setItem(`typing-progress-${lang}-v3`, JSON.stringify({ l, s, h }));
                 } catch (error) {
-                console.error("Failed to save progress", error);
+                    console.error("Failed to save progress", error);
                 }
             };
 
             const handleNext = () => {
-                // Explicitly reset finished state immediately to improve UI responsiveness
                 setIsFinished(false);
                 setUserInput('');
 
                 const totalLessonsInLevel = currentCourse.lessons.length;
                 
                 if (subIndex + 1 < totalLessonsInLevel) {
-                    // Next sub-lesson in same level
                     const nextSub = subIndex + 1;
                     setSubIndex(nextSub);
-                    saveProgress(levelIndex, nextSub);
+                    saveProgress(levelIndex, nextSub, history);
                 } else {
-                    // Level Complete
+                    // Level Complete: Record stats
+                    const levelResult = {
+                        level: currentCourse.id,
+                        title: currentCourse.title,
+                        wpm: wpm,
+                        accuracy: accuracy
+                    };
+                    const newHistory = [...history, levelResult];
+                    setHistory(newHistory);
+
                     const nextLevel = levelIndex + 1;
                     if (nextLevel < COURSES[lang].length) {
                         setLevelIndex(nextLevel);
                         setSubIndex(0);
-                        saveProgress(nextLevel, 0);
+                        saveProgress(nextLevel, 0, newHistory);
                     } else {
-                        // Course Complete
                         setShowCourseComplete(true);
-                        // We still save progress as the end of this level
-                        saveProgress(levelIndex, subIndex); 
+                        saveProgress(levelIndex, subIndex, newHistory);
                     }
                 }
             };
@@ -613,7 +542,8 @@
             const confirmReset = () => {
                 setLevelIndex(0);
                 setSubIndex(0);
-                saveProgress(0, 0);
+                setHistory([]);
+                saveProgress(0, 0, []);
                 resetLesson();
                 setShowResetConfirm(false);
                 setShowCourseComplete(false);
@@ -625,85 +555,72 @@
 
             const handleKeyDown = (e) => {
                 if (e.key === 'Backspace') {
-                e.preventDefault();
+                    e.preventDefault();
                 }
             };
 
             const handleChange = (e) => {
                 const value = e.target.value;
-                
-                if (value.length < userInput.length) return; // Prevent deletion
+                if (value.length < userInput.length) return;
+                if (!startTime && value.length === 1) setStartTime(Date.now());
 
-                if (!startTime && value.length === 1) {
-                setStartTime(Date.now());
-                }
-
-                // Error Tracking
                 const lastCharIndex = value.length - 1;
                 let currentErrors = errorCount;
                 if (value[lastCharIndex] !== targetText[lastCharIndex]) {
-                currentErrors = errorCount + 1;
-                setErrorCount(currentErrors);
+                    currentErrors = errorCount + 1;
+                    setErrorCount(currentErrors);
                 }
 
-                // Stats Logic
                 if (startTime) {
-                const timeElapsedMin = (Date.now() - startTime) / 60000;
-                const currentWpm = Math.round((value.length / 5) / (timeElapsedMin || 0.001)); 
-                setWpm(currentWpm < 0 || currentWpm > 200 ? 0 : currentWpm);
+                    const timeElapsedMin = (Date.now() - startTime) / 60000;
+                    const currentWpm = Math.round((value.length / 5) / (timeElapsedMin || 0.001)); 
+                    setWpm(currentWpm < 0 || currentWpm > 200 ? 0 : currentWpm);
 
-                let correctChars = 0;
-                for (let i = 0; i < value.length; i++) {
-                    if (value[i] === targetText[i]) correctChars++;
-                }
-                const acc = Math.round((correctChars / value.length) * 100);
-                setAccuracy(isNaN(acc) ? 100 : acc);
+                    let correctChars = 0;
+                    for (let i = 0; i < value.length; i++) {
+                        if (value[i] === targetText[i]) correctChars++;
+                    }
+                    const acc = Math.round((correctChars / value.length) * 100);
+                    setAccuracy(isNaN(acc) ? 100 : acc);
                 }
 
                 setUserInput(value);
 
                 if (value.length >= targetText.length) {
-                setIsFinished(true);
-                // Check if this was the last lesson of the level
-                if (subIndex + 1 === currentCourse.lessons.length) {
-                    setIsLevelComplete(true);
-                }
+                    setIsFinished(true);
+                    if (subIndex + 1 === currentCourse.lessons.length) {
+                        setIsLevelComplete(true);
+                    }
                 }
             };
 
             const renderText = () => {
                 return targetText.split('').map((char, index) => {
-                let colorClass = "text-gray-300";
-                let bgClass = "";
-                let borderClass = "";
-                
-                // Remove the custom displayChar logic for "_"
-                
-                if (index < userInput.length) {
-                    if (userInput[index] === char) {
-                    colorClass = "text-green-600 font-medium";
-                    } else {
-                    colorClass = "text-red-600 font-bold";
-                    bgClass = "bg-red-200";
-                    borderClass = "border-b-2 border-red-500";
+                    let colorClass = "text-gray-300";
+                    let bgClass = "";
+                    let borderClass = "";
+                    
+                    if (index < userInput.length) {
+                        if (userInput[index] === char) {
+                            colorClass = "text-green-600 font-medium";
+                        } else {
+                            colorClass = "text-red-600 font-bold";
+                            bgClass = "bg-red-200";
+                            borderClass = "border-b-2 border-red-500";
+                        }
                     }
-                }
 
-                const isCursor = index === userInput.length;
+                    const isCursor = index === userInput.length;
 
-                return (
-                    <span key={index} className={`relative inline-block ${colorClass} ${bgClass} ${borderClass} rounded-sm transition-colors duration-100 min-w-[0.6em] text-center whitespace-pre`}>
-                    {isCursor && (
-                        <span className="absolute left-0 -top-1 w-0.5 h-full bg-blue-600 animate-pulse"></span>
-                    )}
-                    {/* CHANGED: Display original character (space) instead of "_" */}
-                    {char}
-                    </span>
-                );
+                    return (
+                        <span key={index} className={`relative inline-block ${colorClass} ${bgClass} ${borderClass} rounded-sm transition-colors duration-100 min-w-[0.6em] text-center whitespace-pre`}>
+                            {isCursor && <span className="absolute left-0 -top-1 w-0.5 h-full bg-blue-600 animate-pulse"></span>}
+                            {char}
+                        </span>
+                    );
                 });
             };
 
-            // --- LOADING SCREEN ---
             if (loadingUser) {
                 return (
                     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -712,8 +629,6 @@
                 );
             }
 
-            // --- MOBILE / TABLET BLOCKING SCREEN ---
-            // MOVED UP: Check for mobile device BEFORE checking for registration
             if (!isDesktop) {
                 return (
                 <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center font-sans">
@@ -731,10 +646,6 @@
                         <p className="text-slate-500 leading-relaxed font-['Hanuman']">
                         កម្មវិធីនេះត្រូវបានរចនាឡើងសម្រាប់តែការប្រើប្រាស់លើ <strong>កុំព្យូទ័រ (PC/Laptop)</strong> ប៉ុណ្ណោះ ដើម្បីធានាប្រសិទ្ធភាពនៃការហ្វឹកហាត់វាយអក្សរ។
                         </p>
-                        <div className="w-full h-px bg-slate-100 my-4"></div>
-                        <p className="text-slate-400 text-sm">
-                        Please switch to a desktop or laptop computer to use this typing application.
-                        </p>
                     </div>
                     <div className="flex items-center gap-2 text-blue-600 font-medium bg-blue-50 px-6 py-3 rounded-full">
                         <MonitorIcon className="w-5 h-5" />
@@ -745,7 +656,6 @@
                 );
             }
 
-            // --- REGISTRATION CHECK ---
             if (!user) {
                 return <RegistrationForm onRegister={(data) => setUser(data)} />;
             }
@@ -774,18 +684,8 @@
                             </p>
                         </div>
                         <div className="flex gap-3 w-full mt-2">
-                            <button 
-                            onClick={() => setShowResetConfirm(false)}
-                            className="flex-1 px-4 py-2.5 text-slate-600 font-medium hover:bg-slate-100 rounded-xl transition border border-slate-200"
-                            >
-                            {lang === 'km' ? "ទេ" : "Cancel"}
-                            </button>
-                            <button 
-                            onClick={confirmReset}
-                            className="flex-1 px-4 py-2.5 bg-red-600 text-white font-medium hover:bg-red-700 rounded-xl shadow-lg shadow-red-200 transition"
-                            >
-                            {lang === 'km' ? "យល់ព្រម" : "Yes, Reset"}
-                            </button>
+                            <button onClick={() => setShowResetConfirm(false)} className="flex-1 px-4 py-2.5 text-slate-600 font-medium hover:bg-slate-100 rounded-xl transition border border-slate-200">{lang === 'km' ? "ទេ" : "Cancel"}</button>
+                            <button onClick={confirmReset} className="flex-1 px-4 py-2.5 bg-red-600 text-white font-medium hover:bg-red-700 rounded-xl shadow-lg shadow-red-200 transition">{lang === 'km' ? "យល់ព្រម" : "Yes, Reset"}</button>
                         </div>
                         </div>
                     </div>
@@ -800,11 +700,8 @@
                         <KeyboardIcon className="w-6 h-6 text-white" />
                         </div>
                         <div className="hidden md:block">
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
-                            MKTyping
-                        </h1>
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">MKTyping</h1>
                         </div>
-                        {/* Show User Name */}
                         {user && (
                             <div className="ml-4 flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
                                 <UserIcon className="w-4 h-4 text-slate-500" />
@@ -825,19 +722,12 @@
                         </span>
                         </div>
 
-                        <button 
-                        onClick={toggleLanguage}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200"
-                        >
+                        <button onClick={toggleLanguage} className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
                         <GlobeIcon className="w-4 h-4 text-slate-600" />
                         <span className="font-medium text-sm hidden sm:inline">{lang === 'km' ? 'English' : 'ខ្មែរ'}</span>
                         </button>
 
-                        <button
-                        onClick={requestReset}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition"
-                        title="Reset All Progress"
-                        >
+                        <button onClick={requestReset} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition" title="Reset All Progress">
                         <RotateCcwIcon className="w-5 h-5" />
                         </button>
                     </div>
@@ -853,17 +743,13 @@
                         <h2 className={`text-xl font-bold text-slate-800 ${lang === 'km' ? 'font-serif' : ''}`}>
                             {currentCourse.title}
                         </h2>
-                        {/* Level Progress Dots */}
+                        {/* Level Progress Dots (Only show a few or handle overflow if too many lessons) */}
                         <div className="hidden md:flex gap-1">
                             {currentCourse.lessons.map((_, idx) => (
-                                <div 
-                                key={idx} 
-                                className={`h-2 w-2 rounded-full ${idx < subIndex ? 'bg-green-500' : idx === subIndex ? 'bg-blue-500' : 'bg-slate-200'}`}
-                                />
+                                <div key={idx} className={`h-2 w-2 rounded-full ${idx < subIndex ? 'bg-green-500' : idx === subIndex ? 'bg-blue-500' : 'bg-slate-200'}`} />
                             ))}
                         </div>
                         </div>
-                        
                         <div className="flex gap-4 text-sm text-slate-500 items-center">
                             <span>{lang === 'km' ? `មេរៀនទី ${subIndex + 1}` : `Lesson ${subIndex + 1}`}</span>
                             <span className="h-1 w-1 rounded-full bg-slate-300"></span>
@@ -903,41 +789,14 @@
                     </div>
 
                     {/* Typing Area */}
-                    <div 
-                    // Key ensures component remounts fully on lesson change, clearing any stale state
-                    key={`${currentCourse.id}-${subIndex}`}
-                    className="relative bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden flex flex-col min-h-[350px]"
-                    onClick={handleAreaClick}
-                    >
-                    {/* Progress Bar */}
+                    <div key={`${currentCourse.id}-${subIndex}`} className="relative bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden flex flex-col min-h-[350px]" onClick={handleAreaClick}>
                     <div className="h-1.5 bg-slate-100 w-full">
-                        <div 
-                        className={`h-full transition-all duration-300 ${isFinished ? 'bg-green-500' : 'bg-blue-500'}`}
-                        style={{ width: `${(userInput.length / targetText.length) * 100}%` }}
-                        ></div>
+                        <div className={`h-full transition-all duration-300 ${isFinished ? 'bg-green-500' : 'bg-blue-500'}`} style={{ width: `${(userInput.length / targetText.length) * 100}%` }}></div>
                     </div>
 
                     <div className="flex-1 p-8 md:p-12 flex items-center justify-center text-center cursor-text relative z-10">
                         {showCourseComplete ? (
-                        <div className="text-center animate-in fade-in zoom-in duration-300 max-w-md mx-auto">
-                            <div className="inline-block p-5 rounded-full bg-blue-100 mb-6">
-                            <AwardIcon className="w-20 h-20 text-blue-600" />
-                            </div>
-                            <h2 className="text-3xl font-bold text-slate-800 mb-2">
-                            {lang === 'km' ? "អបអរសាទរ! ចប់វគ្គសិក្សាហើយ!" : "All Courses Completed!"}
-                            </h2>
-                            <p className="text-slate-500 mb-8">
-                            {lang === 'km' 
-                                ? "អ្នកបានបញ្ចប់គ្រប់មេរៀនទាំងអស់។ អ្នកអាចហ្វឹកហាត់ម្តងទៀតដើម្បីបង្កើនល្បឿន។" 
-                                : "You have finished all lessons. You can restart to improve your speed."}
-                            </p>
-                            <button 
-                            onClick={requestReset}
-                            className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold shadow-lg shadow-blue-200 transition cursor-pointer relative z-20"
-                            >
-                            {lang === 'km' ? "ចាប់ផ្តើមពីដើមវិញ" : "Start Over"}
-                            </button>
-                        </div>
+                            <CourseSummary history={history} onRestart={confirmReset} />
                         ) : isFinished ? (
                         <div className="text-center animate-in fade-in zoom-in duration-300 max-w-md mx-auto">
                             <div className={`inline-block p-5 rounded-full mb-6 ${isLevelComplete ? 'bg-yellow-100' : 'bg-green-100'}`}>
@@ -967,11 +826,7 @@
                             </div>
                             </div>
 
-                            <button 
-                            onClick={handleNext}
-                            className={`w-full py-4 text-white rounded-xl font-bold shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer relative z-20
-                                ${isLevelComplete ? 'bg-green-600 hover:bg-green-700 shadow-green-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'}`}
-                            >
+                            <button onClick={handleNext} className={`w-full py-4 text-white rounded-xl font-bold shadow-lg transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer relative z-20 ${isLevelComplete ? 'bg-green-600 hover:bg-green-700 shadow-green-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'}`}>
                             {isLevelComplete 
                                 ? (lang === 'km' ? "ចូលទៅកាន់វគ្គថ្មី" : "Start Next Level")
                                 : (lang === 'km' ? "មេរៀនបន្ទាប់" : "Next Text")}
