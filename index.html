@@ -144,15 +144,15 @@
                 title: "Level 3: Capital Letters & Sentences", 
                 lessons: [
                     "Alice and Bob are friends.",
-                    "The Sun rises in the East.",
+                    "The Sun_rises in the East.",
                     "React is a JS library.",
                     "Hello World! How are you?",
                     "Monday Tuesday Wednesday",
-                    "January February March",
+                    "January February_March",
                     "I love coding in React.",
                     "Keep Calm and Type On.",
                     "A Quick Brown Fox.",
-                    "Practice makes perfect."
+                    "Practice_makes perfect."
                 ]
                 },
                 {
@@ -676,9 +676,8 @@
                 let colorClass = "text-gray-300";
                 let bgClass = "";
                 let borderClass = "";
-                let displayChar = char;
-
-                if (char === " ") displayChar = "␣"; 
+                
+                // Remove the custom displayChar logic for "_"
                 
                 if (index < userInput.length) {
                     if (userInput[index] === char) {
@@ -693,11 +692,12 @@
                 const isCursor = index === userInput.length;
 
                 return (
-                    <span key={index} className={`relative inline-block ${colorClass} ${bgClass} ${borderClass} rounded-sm transition-colors duration-100 min-w-[0.5em] text-center`}>
+                    <span key={index} className={`relative inline-block ${colorClass} ${bgClass} ${borderClass} rounded-sm transition-colors duration-100 min-w-[0.6em] text-center whitespace-pre`}>
                     {isCursor && (
                         <span className="absolute left-0 -top-1 w-0.5 h-full bg-blue-600 animate-pulse"></span>
                     )}
-                    {char === " " ? <span className="opacity-30">_</span> : char}
+                    {/* CHANGED: Display original character (space) instead of "_" */}
+                    {char}
                     </span>
                 );
                 });
